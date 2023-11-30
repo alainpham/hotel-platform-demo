@@ -24,8 +24,8 @@
         <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
         <exec-maven-plugin.version>3.1.1</exec-maven-plugin.version>
 
-        <container.registry>registry.lan</container.registry>
-        <kube.ingress.root.domain>kube.lan</kube.ingress.root.domain>
+        <container.registry>alainpham</container.registry>
+        <kube.ingress.root.domain>vrbx.duckdns.org</kube.ingress.root.domain>
     </properties>
 
     <dependencyManagement>

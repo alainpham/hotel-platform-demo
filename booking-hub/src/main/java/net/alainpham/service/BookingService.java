@@ -15,6 +15,7 @@ import org.springframework.web.client.RestTemplate;
 
 import net.alainpham.model.Availability;
 import net.alainpham.model.Booking;
+import net.alainpham.model.Notification;
 import net.alainpham.repo.BookingRepository;
 
 @RestController
@@ -28,6 +29,9 @@ public class BookingService {
     @Value("${availability.service.url}")
     private String availabilityServiceUrl;
 
+    @Value("${notification.service.url}")
+    private String notificationServiceUrl;
+
     private static final Logger logger = LoggerFactory.getLogger(BookingService.class);
 
     @PostMapping("/book")
@@ -38,6 +42,8 @@ public class BookingService {
         availability.setRoom(input.getRoom());
         availability.setBookingStartDate(input.getBookingStartDate());
         availability.setBookingEndDate(input.getBookingEndDate());
+
+        
 
         /* check availability */
         Availability availResponse = restTemplate.postForObject(availabilityServiceUrl + "/check-availability", availability, Availability.class);
@@ -50,6 +56,13 @@ public class BookingService {
             availability.setBooked(true);
             Availability availBlockResponse = restTemplate.postForObject(availabilityServiceUrl + "/availabilities", availability, Availability.class);
             logger.info(availBlockResponse.toString());
+
+            /* notify */
+            Notification notif = new Notification(input.getId(),input.getCustomerName(),"all");
+            logger.info(notificationServiceUrl+"/notify");
+            Notification notifResponse = restTemplate.postForObject(notificationServiceUrl + "/notify", notif, Notification.class);
+            logger.info(notifResponse.toString());
+
             
         }else {
             input.setRoom(null);

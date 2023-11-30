@@ -1,0 +1,121 @@
+---
+# Deployment descriptor
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/name: "${PROJECT_ARTIFACTID}"
+    app.kubernetes.io/component: "${PROJECT_ARTIFACTID}"
+    app.kubernetes.io/part-of: "${PROJECT_ARTIFACTID}"
+    app.kubernetes.io/instance: "${PROJECT_ARTIFACTID}-main"
+    app.kubernetes.io/version: "${PROJECT_VERSION}"
+  name: "${PROJECT_ARTIFACTID}"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: "${PROJECT_ARTIFACTID}"
+      app.kubernetes.io/component: "${PROJECT_ARTIFACTID}"
+      app.kubernetes.io/part-of: "${PROJECT_ARTIFACTID}"
+      app.kubernetes.io/instance: "${PROJECT_ARTIFACTID}-main"
+      app.kubernetes.io/version: "${PROJECT_VERSION}"
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: "${PROJECT_ARTIFACTID}"
+        app.kubernetes.io/component: "${PROJECT_ARTIFACTID}"
+        app.kubernetes.io/part-of: "${PROJECT_ARTIFACTID}"
+        app.kubernetes.io/instance: "${PROJECT_ARTIFACTID}-main"
+        app.kubernetes.io/version: "${PROJECT_VERSION}"
+    spec:
+      containers:
+      - name: ${PROJECT_ARTIFACTID}
+        image: "${CONTAINER_REGISTRY}/${PROJECT_ARTIFACTID}:${PROJECT_VERSION}"
+        imagePullPolicy: "Always"
+        env:
+          - name: APPLICATION_NAME
+            value: ${PROJECT_ARTIFACTID}
+          - name: ANONYMOUS_LOGIN
+            value: "true"
+        livenessProbe:
+          tcpSocket:
+            port: 61616
+          initialDelaySeconds: 0
+          successThreshold: 1
+          periodSeconds: 3
+          failureThreshold: 40 
+        readinessProbe:
+          tcpSocket:
+            port: 61616
+          initialDelaySeconds: 0
+          successThreshold: 1
+          periodSeconds: 3
+          failureThreshold: 40 
+        resources:
+          limits:
+            cpu: "1.0"
+            memory: "1024Mi"
+          requests:
+            cpu: "0.2"
+            memory: "128Mi"
+        ports:
+        - containerPort: 8161
+        - containerPort: 61616
+        volumeMounts:
+      volumes:
+---
+apiVersion: "v1"
+kind: "Service"
+metadata:
+  labels:
+    app.kubernetes.io/name: "${PROJECT_ARTIFACTID}"
+    app.kubernetes.io/component: "${PROJECT_ARTIFACTID}"
+    app.kubernetes.io/part-of: "${PROJECT_ARTIFACTID}"
+    app.kubernetes.io/instance: "${PROJECT_ARTIFACTID}-main"
+    app.kubernetes.io/version: "${PROJECT_VERSION}"
+  name: "${PROJECT_ARTIFACTID}"
+spec:
+  type: ClusterIP
+  ports:
+  - name: "http"
+    port: 8161
+    protocol: "TCP"
+    targetPort: 8161
+  - name: "messaging"
+    port: 61616
+    protocol: "TCP"
+    targetPort: 61616
+  selector:
+    app.kubernetes.io/name: "${PROJECT_ARTIFACTID}"
+    app.kubernetes.io/component: "${PROJECT_ARTIFACTID}"
+    app.kubernetes.io/part-of: "${PROJECT_ARTIFACTID}"
+    app.kubernetes.io/instance: "${PROJECT_ARTIFACTID}-main"
+    app.kubernetes.io/version: "${PROJECT_VERSION}"
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ${PROJECT_ARTIFACTID}
+  labels:
+    app.kubernetes.io/name: "${PROJECT_ARTIFACTID}"
+    app.kubernetes.io/component: "${PROJECT_ARTIFACTID}"
+    app.kubernetes.io/part-of: "${PROJECT_ARTIFACTID}"
+    app.kubernetes.io/instance: "${PROJECT_ARTIFACTID}-main"
+    app.kubernetes.io/version: "${PROJECT_VERSION}"
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-passthrough: "false"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  rules:
+  - host: ${PROJECT_ARTIFACTID}.${KUBE_INGRESS_ROOT_DOMAIN}
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: ${PROJECT_ARTIFACTID}
+            port:
+              number: 8161
+---
