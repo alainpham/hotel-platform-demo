@@ -4,6 +4,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ImportResource;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.beans.factory.annotation.Value;
 
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
@@ -18,6 +19,7 @@ import org.apache.camel.opentelemetry.starter.CamelOpenTelemetry;
 @SpringBootApplication
 @EnableWebSocket
 @CamelOpenTelemetry
+@EnableScheduling
 public class Application implements WebSocketConfigurer{
 
     // must have a main method spring-boot can run

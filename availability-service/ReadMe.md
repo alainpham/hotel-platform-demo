@@ -55,6 +55,17 @@ export PROJECT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -Dfor
 docker run --rm --net primenet --name ${PROJECT_ARTIFACTID} ${PROJECT_ARTIFACTID}:${PROJECT_VERSION}
 
 docker run -d --rm --net primenet --name ${PROJECT_ARTIFACTID} ${PROJECT_ARTIFACTID}:${PROJECT_VERSION}
+
+
+docker run -d --rm \
+    -e OTEL_SDK_DISABLED=false  \
+    -e OTEL_LOGS_EXPORTER=otlp \
+    -e OTEL_METRIC_EXPORT_INTERVAL=15000 \
+    -e OTEL_EXPORTER_OTLP_TIMEOUT=10000 \
+    -e OTEL_RESOURCE_ATTRIBUTES=service.name=${PROJECT_ARTIFACTID},service.namespace=${PROJECT_ARTIFACTID}-ns,service.instance.id=${PROJECT_ARTIFACTID}-dev,service.version=${PROJECT_VERSION} \
+    --net o11y --name ${PROJECT_ARTIFACTID} ${PROJECT_ARTIFACTID}:${PROJECT_VERSION}
+docker stop ${PROJECT_ARTIFACTID}
+
 ```
 
 Launch multple instaces
@@ -146,3 +157,5 @@ base64 tls/truststore.p12>tls/truststore.base64
 base64 tls/keystore.p12>tls/keystore.base64
 
 ```
+
+mvn clean package exec:exec@rmi exec:exec@build exec:exec@tag exec:exec@push exec:exec@kdelete exec:exec@kdeploy

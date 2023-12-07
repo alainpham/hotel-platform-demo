@@ -107,9 +107,9 @@ spec:
           - name: OTEL_RESOURCE_ATTRIBUTES
             value: "service.name=${PROJECT_ARTIFACTID},service.namespace=${PROJECT_ARTIFACTID}-ns,service.instance.id=${PROJECT_ARTIFACTID}-main,service.version=${PROJECT_VERSION}"
           - name: APP_PROCESSING_FAILURERATE_PERCENTAGE
-            value: "15"
+            value: "0"
           - name: APP_PROCESSING_EXECTIMEAVG_MS
-            value: "80"
+            value: "30"
         livenessProbe:
           httpGet:
             path: "/actuator/health"

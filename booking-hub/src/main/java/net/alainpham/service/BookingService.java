@@ -1,6 +1,7 @@
 package net.alainpham.service;
 
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,6 +35,7 @@ public class BookingService {
     private String notificationServiceUrl;
 
     private static final Logger logger = LoggerFactory.getLogger(BookingService.class);
+
 
     @PostMapping("/book")
     public ResponseEntity<Booking> book(@RequestBody Booking input){
@@ -63,7 +66,7 @@ public class BookingService {
             Notification notifResponse = restTemplate.postForObject(notificationServiceUrl + "/notify", notif, Notification.class);
             logger.info(notifResponse.toString());
 
-            
+
         }else {
             input.setRoom(null);
             input.setHotel(null);;
@@ -71,5 +74,11 @@ public class BookingService {
         }
 
         return new ResponseEntity<>(input, HttpStatus.OK);
+    }
+
+    @Scheduled(fixedRate = 60000*5) // 10000 milliseconds = 10 seconds
+    public void myScheduledMethod() {
+        logger.info("reset DB");
+        bookingRepository.deleteAll();
     }
 }

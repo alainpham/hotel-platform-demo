@@ -1,7 +1,12 @@
 test local
 
 ```
-docker run -e ANONYMOUS_LOGIN=true --detach --rm --name activemq-artemis -p 61616:61616 -p 8161:8161 --rm apache/activemq-artemis:2.31.2
+docker run -d --rm \
+    -e ANONYMOUS_LOGIN=true \
+    --net o11y \
+    --name activemq-artemis -p 61616:61616 -p 8161:8161 apache/activemq-artemis:2.31.2
+
+docker stop activemq-artemis
 ```
 
 
