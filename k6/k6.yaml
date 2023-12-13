@@ -11,7 +11,7 @@ stringData:
     import { check, sleep } from 'k6';
 
     // Define the base URL of your API
-    const BASE_URL = __ENV.BASE_URL || 'https://booking-hub.vrbx.duckdns.org';
+    const BASE_URL = __ENV.BASE_URL || 'https://booking-hub.yourowndomain.duckdns.org';
 
     // Define the options for your test
     export let options = {
@@ -110,6 +110,9 @@ spec:
             image: grafana/k6:0.47.0
             args: ["run", "/scripts/script.js"]
             imagePullPolicy: IfNotPresent
+            env:
+              - name: BASE_URL
+                value: http://booking-hub:8080
             volumeMounts:
             - name: k6-config
               mountPath: /scripts/
